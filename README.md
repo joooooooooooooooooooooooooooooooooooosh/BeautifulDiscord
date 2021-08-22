@@ -2,6 +2,7 @@ BeautifulDiscord
 ================
 
 Simple Python script that adds CSS hot-reload to Discord.
+Only modification of this fork is adapting it to work on Discord programs that use the system provided electron instead of bundling its own.
 
 ![demo gif](http://i.imgur.com/xq4HS5f.gif)
 
@@ -70,7 +71,7 @@ install it as a script that you can run from anywhere.
 ## Installing
 
 ```
-python3 -m pip install -U https://github.com/leovoel/BeautifulDiscord/archive/master.zip
+python3 -m pip install -U https://github.com/joooooooooooooooooooooooooooooooooooosh/BeautifulDiscord/archive/master.zip
 ```
 
 Usage of a virtual environment is recommended, to not pollute your global package space.
