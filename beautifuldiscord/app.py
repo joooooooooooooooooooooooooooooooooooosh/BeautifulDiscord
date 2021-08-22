@@ -46,22 +46,10 @@ class DiscordProcess:
             path = os.path.split(self.path)
             app_version = path[1].replace('app-', '')
             discord_version = os.path.basename(path[0])
-            # Iterate through the paths...
-            base = os.path.join(self.path, 'modules')
-            versions = []
-            for directory in os.listdir(base):
-                if directory.startswith('discord_desktop_core'):
-                    (_, _, version) = directory.partition('-')
-                    if version.isdigit():
-                        versions.append(int(version))
-                    else:
-                        # If we have an unversioned directory then maybe they stopped doing this dumb stuff.
-                        return os.path.join(base, directory)
-
-            # Get the highest version number
-            version = max(versions)
-            return os.path.join(base, 'discord_desktop_core-%d' % version, 'discord_desktop_core')
-
+            return os.path.expandvars(os.path.join('%AppData%',
+                                                   discord_version,
+                                                   app_version,
+                                                   r'modules\discord_desktop_core'))
         elif sys.platform == 'darwin':
             # macOS doesn't encode the app version in the path, but rather it stores it in the Info.plist
             # which we can find in the root directory e.g. </Applications/[EXE].app/Contents/Info.plist>
@@ -83,6 +71,7 @@ class DiscordProcess:
             # The modules are under ~/.config/discordcanary/0.0.xx/modules/discord_desktop_core
             # To get the version number we have to iterate over ~/.config/discordcanary and find the
             # folder with the highest version number
+
             discord_version = os.path.basename(self.path).replace('-', '')
             config = os.path.expanduser(os.path.join(os.getenv('XDG_CONFIG_HOME', '~/.config'), discord_version))
 
@@ -168,7 +157,18 @@ def discord_process():
         except (psutil.Error, OSError):
             pass
         else:
-            if exe.startswith('Discord') and not exe.endswith('Helper'):
+            if exe == "electron" or (exe.startswith('Discord') and not exe.endswith('Helper')):
+                if exe == "electron":
+                    # strips /app.asar from the path
+                    path = proc.as_dict()["cmdline"][1][:-9]
+
+                    if "discord" not in path:
+                        continue
+
+                    # very hacky but gets the job done
+                    discord_name = path.split("/")[-1]
+                    exe = "../../bin/" + discord_name
+
                 entry = executables.get(exe)
 
                 if entry is None:
